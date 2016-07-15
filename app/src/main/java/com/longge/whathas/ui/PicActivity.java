@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -40,6 +41,8 @@ public class PicActivity extends AppCompatActivity {
     ViewPager mViewPagerPic;
     @BindView(R.id.loading_progress)
     ProgressBar mLoadingProgress;
+    @BindView(R.id.toolbar_pic)
+    Toolbar mToolbarPic;
 
     private List<PicTabEntity> mListPicTabs = new ArrayList<>();
     private List<BasePicFragment> mListPicFragment = new ArrayList<>();
@@ -48,9 +51,11 @@ public class PicActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_prettygirls);
+        setContentView(R.layout.activity_pic);
         ButterKnife.bind(this);
-
+        setSupportActionBar(mToolbarPic);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         NetUtils.loadHtml(UrlConstant.TU_PIAN, new StringCallback() {
 
             @Override
