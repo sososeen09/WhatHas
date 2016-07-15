@@ -12,23 +12,10 @@ import android.view.View;
 
 import com.longge.whathas.R;
 import com.longge.whathas.base.BaseActivity;
-import com.longge.whathas.entity.PicTabEntity;
-import com.longge.whathas.net.NetUtils;
-import com.longge.whathas.net.UrlConstant;
-import com.zhy.http.okhttp.callback.StringCallback;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.Call;
 
 public class MainActivity extends BaseActivity {
 
@@ -56,30 +43,6 @@ public class MainActivity extends BaseActivity {
                             }
                         })
                         .show();
-            }
-        });
-
-
-        NetUtils.loadHtml(UrlConstant.TU_PIAN, new StringCallback() {
-            final List<PicTabEntity> mListPicTabs = new ArrayList<>();
-            @Override
-            public void onError(Call call, Exception e, int id) {
-
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                Document document = Jsoup.parse(response);
-                Elements elementsTith2 = document.getElementsByClass("tith2");
-                for (Element tith2 : elementsTith2) {
-                    Elements elementsByTag = tith2.getElementsByTag("a");
-                    for (Element tagA : elementsByTag) {
-                        PicTabEntity picTabEntity = new PicTabEntity();
-                        picTabEntity.linkUrl = UrlConstant.BASE_URL + tagA.attr("href");//链接
-                        picTabEntity.tabName = tagA.text();//tab名
-                        mListPicTabs.add(picTabEntity);
-                    }
-                }
             }
         });
 
@@ -115,7 +78,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void startAct() {
-        Intent intent = new Intent(MainActivity.this, PrettyGirlsActivity.class);
+        Intent intent = new Intent(MainActivity.this, PicActivity.class);
         startActivity(intent);
     }
 

@@ -94,6 +94,9 @@ public class PrettyGirlsRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
 
     @Override
     public int getItemCount() {
+        if (mList.size() == 0) {
+            return 0;
+        }
         return mList.size() + 1;//包含了一个FooterView
     }
 

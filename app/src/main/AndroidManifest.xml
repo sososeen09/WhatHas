@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".base.BaseActivity" />
-        <activity android:name=".ui.PrettyGirlsActivity" />
+        <activity android:name=".ui.PicActivity" />
         <activity android:name=".ui.PrettyDetailActivity"></activity>
     </application>
 

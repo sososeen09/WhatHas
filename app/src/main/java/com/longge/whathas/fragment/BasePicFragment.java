@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +40,8 @@ public class BasePicFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
-    private static final String ARG_PARAM1 = "tabName";
-    private static final String ARG_PARAM2 = "linkUrl";
+    private static final String TAB_NAME = "tabName";
+    private static final String LINK_URL = "linkUrl";
 
     private List<PicEntity> mPicEntityList = new ArrayList<>();
     private Activity mActivity;
@@ -58,7 +59,9 @@ public class BasePicFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mTabName;
     private String mLinkUrl;
+    private static final String TAG = BasePicFragment.class.getName();
 
+    private boolean mPostRefresh = false;
 
     public BasePicFragment() {
         // Required empty public constructor
@@ -68,16 +71,16 @@ public class BasePicFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param tabName Parameter 1.
+     * @param linkUrl Parameter 2.
      * @return A new instance of fragment BasePicFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static BasePicFragment newInstance(String param1, String param2) {
+    public static BasePicFragment newInstance(String tabName, String linkUrl) {
         BasePicFragment fragment = new BasePicFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(TAB_NAME, tabName);
+        args.putString(LINK_URL, linkUrl);
         fragment.setArguments(args);
         return fragment;
     }
@@ -86,9 +89,10 @@ public class BasePicFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mTabName = getArguments().getString(ARG_PARAM1);
-            mLinkUrl = getArguments().getString(ARG_PARAM2);
+            mTabName = getArguments().getString(TAB_NAME);
+            mLinkUrl = getArguments().getString(LINK_URL);
         }
+        Log.d(TAG, "onCreate");
     }
 
     @Override
@@ -97,7 +101,57 @@ public class BasePicFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pic, container, false);
         ButterKnife.bind(this, view);
+        Log.d(TAG, "onCreateView");
+
+        initView();
         return view;
+    }
+
+    private void initView() {
+        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerViewMain.setLayoutManager(mLayoutManager);
+        mPrettyGirlsRecyclerAdapter = new PrettyGirlsRecyclerAdapter(mActivity, mPicEntityList);
+        mRecyclerViewMain.setAdapter(mPrettyGirlsRecyclerAdapter);
+
+        mPrettyGirlsRecyclerAdapter.setonItemClickListener(new PrettyGirlsRecyclerAdapter.onItemClickListener() {
+            @Override
+            public void onItemClick(View view, int pos) {
+                PicEntity picEntity = mPicEntityList.get(pos);
+                Intent intent = new Intent(mActivity, PrettyDetailActivity.class);
+                intent.putExtra("linkUrl", picEntity.linkUrl);
+                startActivity(intent);
+            }
+        });
+
+        mRecyclerViewMain.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int lastVisiableItem;
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem + 1 == mPrettyGirlsRecyclerAdapter
+                        .getItemCount
+                                ()) {
+                    mPrettyGirlsRecyclerAdapter.setMoreStatus(PrettyGirlsRecyclerAdapter.LOADING_MORE);
+                    loadData(false, getPage(false));
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int[] items = new int[2];
+                mLayoutManager.findLastVisibleItemPositions(items);
+                lastVisiableItem = Math.max(items[0], items[1]);
+
+                if (dy < 0) {
+                    mFabSecond.setVisibility(View.VISIBLE);
+                } else {
+                    mFabSecond.setVisibility(View.GONE);
+                }
+
+            }
+        });
     }
 
     private String getPage(boolean isRefresh) {
@@ -119,20 +173,30 @@ public class BasePicFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Log.d(TAG, "onActivityCreated");
+        mFabSecond.setVisibility(View.GONE);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 loadData(true, getPage(true));
             }
         });
-        mSwipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(true);
-                loadData(true, getPage(true));
-            }
-        });
-        mFabSecond.setVisibility(View.GONE);
+
+
+    }
+
+    public void initLoad() {
+        if (!mPostRefresh) {
+
+            mSwipeRefreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSwipeRefreshLayout.setRefreshing(true);
+                    loadData(true, getPage(true));
+                }
+            });
+            mPostRefresh = true;
+        }
 
     }
 
@@ -143,7 +207,7 @@ public class BasePicFragment extends Fragment {
      */
     private void loadData(final boolean isRefresh, String page) {
 //        http://www.wmpic.me/meinv/page/1
-        String url = UrlConstant.MEI_NV + page;
+        String url = mLinkUrl + "/page/" + page;
         OkHttpUtils.get()
                    .url(url)
                    .build()
@@ -187,64 +251,12 @@ public class BasePicFragment extends Fragment {
 
                            }
 
-                           for (int i = 0; i < mPicEntityList.size(); i++) {
-                               System.out.println("title: " + mPicEntityList.get(i).title);
-                               System.out.println("href: " + mPicEntityList.get(i).linkUrl);
-                               System.out.println("src: " + mPicEntityList.get(i).imagePath);
-                           }
-
 
                            if (mPrettyGirlsRecyclerAdapter == null) {
-                               mPrettyGirlsRecyclerAdapter = new PrettyGirlsRecyclerAdapter(mActivity, mPicEntityList);
-                               mPrettyGirlsRecyclerAdapter.setonItemClickListener(new PrettyGirlsRecyclerAdapter.onItemClickListener() {
-                                   @Override
-                                   public void onItemClick(View view, int pos) {
-                                       PicEntity picEntity = mPicEntityList.get(pos);
-//                                       Snackbar.make(view, picEntity.title, Snackbar.LENGTH_SHORT)
-//                                               .show();
-                                       Intent intent = new Intent(mActivity, PrettyDetailActivity.class);
-                                       intent.putExtra("linkUrl", picEntity.linkUrl);
-                                       startActivity(intent);
-                                   }
-                               });
-//                               mLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false);
-//                               mLayoutManager = new GridLayoutManager(mActivity, 2, GridLayoutManager.VERTICAL, false);
-                               mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-                               mRecyclerViewMain.setLayoutManager(mLayoutManager);
-                               mRecyclerViewMain.setAdapter(mPrettyGirlsRecyclerAdapter);
-                               mRecyclerViewMain.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                                   private int lastVisiableItem;
 
-                                   @Override
-                                   public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                                       super.onScrollStateChanged(recyclerView, newState);
-                                       if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem + 1 == mPrettyGirlsRecyclerAdapter
-                                               .getItemCount
-                                                       ()) {
-                                           mPrettyGirlsRecyclerAdapter.setMoreStatus(PrettyGirlsRecyclerAdapter.LOADING_MORE);
-                                           loadData(false, getPage(false));
-                                       }
-                                   }
-
-                                   @Override
-                                   public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                                       super.onScrolled(recyclerView, dx, dy);
-                                       int[] items = new int[2];
-                                       mLayoutManager.findLastVisibleItemPositions(items);
-                                       lastVisiableItem = Math.max(items[0], items[1]);
-                                       System.out.println("items[0]: " + items[0] + "--" + "items[1]: " + items[1] + "--lastVisiableItem: " +
-                                               lastVisiableItem);
-                                       System.out.println("dy: " + dy);
-                                       if (dy < 0) {
-                                           mFabSecond.setVisibility(View.VISIBLE);
-                                       } else {
-                                           mFabSecond.setVisibility(View.GONE);
-                                       }
-
-                                   }
-                               });
                            } else {
                                mPrettyGirlsRecyclerAdapter.setMoreStatus(PrettyGirlsRecyclerAdapter.PULLUP_LOAD_MORE);
+                               RecyclerView.LayoutManager layoutManager = mRecyclerViewMain.getLayoutManager();
                                mPrettyGirlsRecyclerAdapter.notifyDataSetChanged();
                            }
                            mSwipeRefreshLayout.setRefreshing(false);
@@ -254,5 +266,6 @@ public class BasePicFragment extends Fragment {
 
     @OnClick(R.id.fab_second)
     public void onClick() {
+        mRecyclerViewMain.scrollToPosition(0);
     }
 }
