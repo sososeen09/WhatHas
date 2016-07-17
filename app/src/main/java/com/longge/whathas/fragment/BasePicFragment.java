@@ -150,6 +150,7 @@ public class BasePicFragment extends Fragment {
                 PicEntity picEntity = mPicEntityList.get(pos);
                 Intent intent = new Intent(mActivity, PrettyDetailActivity.class);
                 intent.putExtra("linkUrl", picEntity.linkUrl);
+                intent.putExtra("title", picEntity.title);
                 startActivity(intent);
             }
         });
@@ -160,11 +161,15 @@ public class BasePicFragment extends Fragment {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE && lastVisiableItem + 1 == mPrettyGirlsRecyclerAdapter
-                        .getItemCount
-                                ()) {
-                    mPrettyGirlsRecyclerAdapter.setMoreStatus(PrettyGirlsRecyclerAdapter.LOADING_MORE);
-                    loadData(false, getPage(false));
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    if (lastVisiableItem + 1 == mPrettyGirlsRecyclerAdapter.getItemCount()) {
+                        mPrettyGirlsRecyclerAdapter.setMoreStatus(PrettyGirlsRecyclerAdapter.LOADING_MORE);
+                        loadData(false, getPage(false));
+                    }
+
+                    if (lastVisiableItem <= 10) {
+                        ((PicActivity) getActivity()).setFbVisiable(false);
+                    }
                 }
             }
 
@@ -177,10 +182,9 @@ public class BasePicFragment extends Fragment {
 
 
                 if (dy < 0) {
-//                    mFabSecond.setVisibility(View.VISIBLE);
                     ((PicActivity) getActivity()).setFbVisiable(true);
+
                 } else {
-//                    mFabSecond.setVisibility(View.GONE);
                     ((PicActivity) getActivity()).setFbVisiable(false);
                 }
 

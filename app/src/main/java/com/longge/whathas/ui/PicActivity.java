@@ -61,6 +61,7 @@ public class PicActivity extends AppCompatActivity {
         setSupportActionBar(mToolbarPic);
 //        getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("精美图片");
         NetUtils.loadHtml(UrlConstant.TU_PIAN, new StringCallback() {
 
             @Override

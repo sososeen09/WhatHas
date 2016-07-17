@@ -34,17 +34,19 @@ public class PrettyDetailActivity extends AppCompatActivity {
     @BindView(R.id.toolbar_detail)
     Toolbar mToolbarDetail;
     private String mLinkUrl;
+    private String mTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pretty_detail);
         ButterKnife.bind(this);
+        handleIntent();
         setSupportActionBar(mToolbarDetail);
 //        getSupportActionBar().setHomeButtonEnabled(true);
 //        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_menu);//设置返回图标
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        handleIntent();
+        getSupportActionBar().setTitle(mTitle);
         mSwipeRefreshLayoutDetail.post(new Runnable() {
             @Override
             public void run() {
@@ -58,6 +60,7 @@ public class PrettyDetailActivity extends AppCompatActivity {
 
     private void handleIntent() {
         mLinkUrl = getIntent().getStringExtra("linkUrl");
+        mTitle = getIntent().getStringExtra("title");
     }
 
     private void loadWebData() {
