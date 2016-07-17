@@ -19,6 +19,7 @@ import com.longge.whathas.R;
 import com.longge.whathas.adapter.PrettyGirlsRecyclerAdapter;
 import com.longge.whathas.entity.PicEntity;
 import com.longge.whathas.net.UrlConstant;
+import com.longge.whathas.ui.PicActivity;
 import com.longge.whathas.ui.PrettyDetailActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -107,6 +108,36 @@ public class BasePicFragment extends Fragment {
         return view;
     }
 
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mActivity = getActivity();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d(TAG, "onActivityCreated");
+        mFabSecond.setVisibility(View.GONE);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadData(true, getPage(true));
+            }
+        });
+    }
+
+    @OnClick(R.id.fab_second)
+    public void onClick() {
+        mRecyclerViewMain.scrollToPosition(0);
+    }
+
+    public void scrollUp() {
+        mRecyclerViewMain.scrollToPosition(0);
+    }
+
+
     private void initView() {
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerViewMain.setLayoutManager(mLayoutManager);
@@ -144,45 +175,17 @@ public class BasePicFragment extends Fragment {
                 mLayoutManager.findLastVisibleItemPositions(items);
                 lastVisiableItem = Math.max(items[0], items[1]);
 
+
                 if (dy < 0) {
-                    mFabSecond.setVisibility(View.VISIBLE);
+//                    mFabSecond.setVisibility(View.VISIBLE);
+                    ((PicActivity) getActivity()).setFbVisiable(true);
                 } else {
-                    mFabSecond.setVisibility(View.GONE);
+//                    mFabSecond.setVisibility(View.GONE);
+                    ((PicActivity) getActivity()).setFbVisiable(false);
                 }
 
             }
         });
-    }
-
-    private String getPage(boolean isRefresh) {
-
-        if (isRefresh) {
-            return "1";
-        } else {
-            mPage++;
-            return String.valueOf(mPage);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mActivity = getActivity();
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Log.d(TAG, "onActivityCreated");
-        mFabSecond.setVisibility(View.GONE);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadData(true, getPage(true));
-            }
-        });
-
-
     }
 
     public void initLoad() {
@@ -200,10 +203,21 @@ public class BasePicFragment extends Fragment {
 
     }
 
+    private String getPage(boolean isRefresh) {
+
+        if (isRefresh) {
+            return "1";
+        } else {
+            mPage++;
+            return String.valueOf(mPage);
+        }
+    }
+
+
     /**
      * 加载数据
      *
-     * @param isRefresh
+     * @param isRefresh 是刷新请求
      */
     private void loadData(final boolean isRefresh, String page) {
 //        http://www.wmpic.me/meinv/page/1
@@ -252,20 +266,12 @@ public class BasePicFragment extends Fragment {
                            }
 
 
-                           if (mPrettyGirlsRecyclerAdapter == null) {
-
-                           } else {
+                           if (mPrettyGirlsRecyclerAdapter != null) {
                                mPrettyGirlsRecyclerAdapter.setMoreStatus(PrettyGirlsRecyclerAdapter.PULLUP_LOAD_MORE);
-                               RecyclerView.LayoutManager layoutManager = mRecyclerViewMain.getLayoutManager();
                                mPrettyGirlsRecyclerAdapter.notifyDataSetChanged();
                            }
                            mSwipeRefreshLayout.setRefreshing(false);
                        }
                    });
-    }
-
-    @OnClick(R.id.fab_second)
-    public void onClick() {
-        mRecyclerViewMain.scrollToPosition(0);
     }
 }

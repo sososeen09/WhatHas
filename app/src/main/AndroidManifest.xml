@@ -23,9 +23,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".base.BaseActivity" />
+        <activity
+            android:name=".base.BaseActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ui.PicActivity" />
-        <activity android:name=".ui.PrettyDetailActivity"></activity>
+        <activity android:name=".ui.PrettyDetailActivity"/>
     </application>
 
 </manifest>

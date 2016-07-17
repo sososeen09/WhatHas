@@ -1,6 +1,7 @@
 package com.longge.whathas.ui;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -30,6 +32,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import okhttp3.Call;
 
 public class PicActivity extends AppCompatActivity {
@@ -43,10 +46,12 @@ public class PicActivity extends AppCompatActivity {
     ProgressBar mLoadingProgress;
     @BindView(R.id.toolbar_pic)
     Toolbar mToolbarPic;
+    @BindView(R.id.fab_arrow_up)
+    FloatingActionButton mFabArrowUp;
 
     private List<PicTabEntity> mListPicTabs = new ArrayList<>();
     private List<BasePicFragment> mListPicFragment = new ArrayList<>();
-    private String[] mTabNames = {"唯美图片", "小清新图", "意境图片", "美女图片", "搞笑图片", "空间图片", "明星图片"};
+    private int mCurrentFragIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +59,7 @@ public class PicActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pic);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbarPic);
-        getSupportActionBar().setHomeButtonEnabled(true);
+//        getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         NetUtils.loadHtml(UrlConstant.TU_PIAN, new StringCallback() {
 
@@ -88,7 +93,7 @@ public class PicActivity extends AppCompatActivity {
     /**
      * 初始化ViewPager数据
      *
-     * @param listPicTabs
+     * @param listPicTabs 图片tab的描述
      */
     private void initViewPagerData(List<PicTabEntity> listPicTabs) {
 
@@ -113,7 +118,7 @@ public class PicActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
-
+                mCurrentFragIndex = position;
                 mViewPagerPic.setCurrentItem(position);
                 mListPicFragment.get(position)
                                 .initLoad();
@@ -133,6 +138,18 @@ public class PicActivity extends AppCompatActivity {
         //人为的加载第一页界面数据
         mListPicFragment.get(0)
                         .initLoad();
+    }
+
+    /**
+     *
+     * @param isVisiable FloatActionButton是否可见
+     */
+    public void setFbVisiable(boolean isVisiable) {
+        if (isVisiable) {
+            mFabArrowUp.setVisibility(View.VISIBLE);
+        } else {
+            mFabArrowUp.setVisibility(View.GONE);
+        }
     }
 
 
@@ -160,5 +177,19 @@ public class PicActivity extends AppCompatActivity {
         }
     }
 
+    @OnClick(R.id.fab_arrow_up)
+    public void onClick() {
+        mListPicFragment.get(mCurrentFragIndex).scrollUp();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 }

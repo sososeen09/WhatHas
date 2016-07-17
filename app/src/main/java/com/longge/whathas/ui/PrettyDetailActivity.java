@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -29,6 +31,8 @@ public class PrettyDetailActivity extends AppCompatActivity {
     WebView mWebviewPretty;
     @BindView(R.id.swipe_refreshLayout_detail)
     SwipeRefreshLayout mSwipeRefreshLayoutDetail;
+    @BindView(R.id.toolbar_detail)
+    Toolbar mToolbarDetail;
     private String mLinkUrl;
 
     @Override
@@ -36,6 +40,10 @@ public class PrettyDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pretty_detail);
         ButterKnife.bind(this);
+        setSupportActionBar(mToolbarDetail);
+//        getSupportActionBar().setHomeButtonEnabled(true);
+//        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_menu);//设置返回图标
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         handleIntent();
         mSwipeRefreshLayoutDetail.post(new Runnable() {
             @Override
@@ -60,8 +68,6 @@ public class PrettyDetailActivity extends AppCompatActivity {
             // 网页开始加载
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                view.getSettings()
-                    .setJavaScriptEnabled(true);
                 super.onPageStarted(view, url, favicon);
             }
 
@@ -75,9 +81,6 @@ public class PrettyDetailActivity extends AppCompatActivity {
             // 网页加载结束
             @Override
             public void onPageFinished(WebView view, String url) {
-                view.getSettings()
-                    .setJavaScriptEnabled(true);
-
                 super.onPageFinished(view, url);
                 // html加载完成之后，添加监听图片的点击js函数
                 mSwipeRefreshLayoutDetail.setRefreshing(false);
@@ -111,7 +114,7 @@ public class PrettyDetailActivity extends AppCompatActivity {
 
         WebSettings settings = mWebviewPretty.getSettings();
         settings.setDefaultTextEncodingName("utf-8");// 避免中文乱码
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT | WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setJavaScriptEnabled(true);
 
         settings.setNeedInitialFocus(false);
@@ -162,4 +165,13 @@ public class PrettyDetailActivity extends AppCompatActivity {
         return "<html>" + head + "<body>" + bodyHTML + "</body></html>";
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
