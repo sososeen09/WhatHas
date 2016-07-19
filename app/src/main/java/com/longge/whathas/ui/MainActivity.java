@@ -1,9 +1,15 @@
 package com.longge.whathas.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -21,15 +27,29 @@ public class MainActivity extends BaseActivity {
 
     @BindView(R.id.cardView_pic)
     CardView mCardViewPic;
+    @BindView(R.id.cardView_material_design)
+    CardView mCardViewMaterialDesign;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.coordinator_Layout_main)
+    CoordinatorLayout mCoordinatorLayoutMain;
+    @BindView(R.id.navigation_header_container)
+    NavigationView mNavigationHeaderContainer;
+    @BindView(R.id.drawer_layout_main)
+    DrawerLayout mDrawerLayoutMain;
+    private String mAppKey;
+    private String mAppsercet;
+    private String mCurrentTime;
+    private String mNonce;
+    private String mCheckSum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        initToolBar();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -39,15 +59,35 @@ public class MainActivity extends BaseActivity {
                         .setAction("Action", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                startAct();
+                                startAct(PicActivity.class);
                             }
                         })
                         .show();
             }
         });
 
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayoutMain, mToolbar, R.string.navigation_open, R
+                .string.navigation_close);
+        mDrawerLayoutMain.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
     }
 
+    private void initToolBar() {
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);//显示图标
+        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_menu);//修改图标
+        getSupportActionBar().setDisplayShowTitleEnabled(false);//隐藏标题
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayoutMain.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayoutMain.closeDrawer(GravityCompat.START);
+            return;
+        }
+        super.onBackPressed();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -66,19 +106,30 @@ public class MainActivity extends BaseActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == android.R.id.home) {
+            mDrawerLayoutMain.openDrawer(GravityCompat.START);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
 
-    @OnClick({R.id.cardView_pic,})
-    public void onClick() {
-        startAct();
+    @OnClick({R.id.cardView_pic, R.id.cardView_material_design})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.cardView_pic:
+                startAct(PicActivity.class);
+                break;
+            case R.id.cardView_material_design:
+//                startAct(MaterialDesignActivity.class);
+                startAct(ScrollingActivity.class);
+                break;
+        }
     }
 
-    private void startAct() {
-        Intent intent = new Intent(MainActivity.this, PicActivity.class);
+
+    private void startAct(Class<? extends Activity> clazz) {
+        Intent intent = new Intent(MainActivity.this, clazz);
         startActivity(intent);
     }
 
