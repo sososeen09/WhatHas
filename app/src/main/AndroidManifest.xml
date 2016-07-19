@@ -16,7 +16,9 @@
         <!-- android:theme="@style/AppTheme.NoActionBar" -->
         <activity
             android:name=".ui.MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <!--似乎必须要给个主题，不然的话会导致NavigatinView的状态栏与MainContent的状态一样-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

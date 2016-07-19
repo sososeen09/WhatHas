@@ -96,5 +96,6 @@
     </string>
     <string name="navigation_open">打开</string>
     <string name="navigation_close">关闭</string>
+    <string name="search">search</string>
 
 </resources>

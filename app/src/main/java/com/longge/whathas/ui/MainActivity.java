@@ -11,10 +11,12 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.longge.whathas.R;
 import com.longge.whathas.base.BaseActivity;
@@ -23,7 +25,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
 
     @BindView(R.id.cardView_pic)
     CardView mCardViewPic;
@@ -70,6 +72,8 @@ public class MainActivity extends BaseActivity {
                 .string.navigation_close);
         mDrawerLayoutMain.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
+
+        mNavigationHeaderContainer.setNavigationItemSelectedListener(this);
     }
 
     private void initToolBar() {
@@ -93,6 +97,8 @@ public class MainActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+//        searchView.setOnQueryTextListener(this);
         return true;
     }
 
@@ -133,4 +139,27 @@ public class MainActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_item_setting) {
+            Toast.makeText(this, "setting", Toast.LENGTH_SHORT).show();
+        }
+
+        mDrawerLayoutMain.closeDrawer(GravityCompat.START);
+
+        return true;
+
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
 }
