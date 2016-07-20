@@ -127,8 +127,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 startAct(PicActivity.class);
                 break;
             case R.id.cardView_material_design:
-//                startAct(MaterialDesignActivity.class);
-                startAct(ScrollingActivity.class);
+                startAct(MaterialDesignActivity.class);
+//                startAct(ScrollingActivity.class);
                 break;
         }
     }

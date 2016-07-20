@@ -2,7 +2,6 @@ package com.longge.whathas.ui;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -11,6 +10,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.longge.whathas.R;
@@ -29,10 +29,10 @@ public class PrettyDetailActivity extends AppCompatActivity {
 
     @BindView(R.id.webview_pretty)
     WebView mWebviewPretty;
-    @BindView(R.id.swipe_refreshLayout_detail)
-    SwipeRefreshLayout mSwipeRefreshLayoutDetail;
     @BindView(R.id.toolbar_detail)
     Toolbar mToolbarDetail;
+    @BindView(R.id.progress_bar)
+    ProgressBar mProgressBar;
     private String mLinkUrl;
     private String mTitle;
 
@@ -47,14 +47,7 @@ public class PrettyDetailActivity extends AppCompatActivity {
 //        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_menu);//设置返回图标
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(mTitle);
-        mSwipeRefreshLayoutDetail.post(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayoutDetail.setRefreshing(true);
-                loadWebData();
-            }
-        });
-
+        loadWebData();
     }
 
 
@@ -86,7 +79,6 @@ public class PrettyDetailActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 // html加载完成之后，添加监听图片的点击js函数
-                mSwipeRefreshLayoutDetail.setRefreshing(false);
             }
 
 
@@ -104,6 +96,12 @@ public class PrettyDetailActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 super.onProgressChanged(view, newProgress);
+                if (newProgress == 100) {
+                    mProgressBar.setVisibility(View.GONE);
+                } else {
+                    mProgressBar.setProgress(newProgress);
+                    mProgressBar.setVisibility(View.VISIBLE);
+                }
             }
 
             // 网页标题
