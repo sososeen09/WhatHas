@@ -72,13 +72,16 @@ public class PicActivity extends AppCompatActivity {
             @Override
             public void onResponse(String response, int id) {
                 Document document = Jsoup.parse(response);
-                Elements elementsTith2 = document.getElementsByClass("tith2");
+                Elements elementsTith2 = document.getElementsByClass("page-cat-new");
                 for (Element tith2 : elementsTith2) {
                     Elements elementsByTag = tith2.getElementsByTag("a");
-                    for (Element tagA : elementsByTag) {
+                    Elements elements=tith2.getElementsByClass("tp_t");
+                    for (int i = 0; i < elements.size(); i++) {
+                        Element element = elements.get(i);
+                        Element element1 = elementsByTag.get(i);
                         PicTabEntity picTabEntity = new PicTabEntity();
-                        picTabEntity.linkUrl = UrlConstant.BASE_URL + tagA.attr("href");//链接
-                        picTabEntity.tabName = tagA.text();//tab名
+                        picTabEntity.linkUrl = UrlConstant.BASE_URL + element1.attr("href");//链接
+                        picTabEntity.tabName = element.text();//tab名
                         mListPicTabs.add(picTabEntity);
                     }
                 }

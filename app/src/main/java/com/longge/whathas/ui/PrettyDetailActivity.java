@@ -44,7 +44,7 @@ public class PrettyDetailActivity extends AppCompatActivity {
         handleIntent();
         setSupportActionBar(mToolbarDetail);
 //        getSupportActionBar().setHomeButtonEnabled(true);
-//        getSupportActionBar().setHomeAsUpIndicator(R.mipmap.ic_menu);//设置返回图标
+//        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_navigate_before_white_24dp);//设置返回图标
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(mTitle);
         loadWebData();
